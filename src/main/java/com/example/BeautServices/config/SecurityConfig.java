@@ -37,10 +37,11 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
                         // Allow static resources like images
-                        .requestMatchers("/images/**", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                        .requestMatchers("/auth/api/receptionist/**").hasAnyAuthority(Role.ADMIN.name(), Role.RECEPTIONIST.name())
-                        .requestMatchers("/auth/api/admin/**").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers("/uploads/images**", "/css/**", "/js/**","/api/categories/**").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login","/api/auth/online-users","/api/auth/me","/api/auth/logout").permitAll()
+                        .requestMatchers("/api/auth/password/**","/api/auth/customer/**").permitAll()
+                        .requestMatchers("/api/auth/receptionist/**").hasAnyRole(Role.ADMIN.name(), Role.RECEPTIONIST.name())
+                        .requestMatchers("/api/auth/admin/**").hasRole(Role.ADMIN.name())
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->
