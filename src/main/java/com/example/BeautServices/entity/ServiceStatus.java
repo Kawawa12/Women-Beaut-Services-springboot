@@ -1,7 +1,7 @@
 package com.example.BeautServices.entity;
 
-public enum SlotStatus {
+public enum ServiceStatus {
     AVAILABLE,
     RESERVED,
-    UNAVAILABLE
+    NOT_AVAILABLE,
 }

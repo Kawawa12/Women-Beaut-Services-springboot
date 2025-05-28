@@ -1,11 +1,20 @@
 package com.example.BeautServices.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class BeautService {
 
     @Id
@@ -15,70 +24,32 @@ public class BeautService {
     private String name;
     private String description;
     private double price;
-    private String imageUrl;
+
+    @Lob
+    private byte[] image;
 
     @ManyToOne
     private Category category;
 
-    @OneToMany(mappedBy = "beautService", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "service_time_slots",
+            joinColumns = @JoinColumn(name = "service_id"),
+            inverseJoinColumns = @JoinColumn(name = "time_slot_id")
+    )
     private List<BeautTimeSlot> timeSlots = new ArrayList<>();
 
-    public BeautService() {
-    }
+    @Enumerated(EnumType.STRING)
+    private ServiceStatus status = ServiceStatus.AVAILABLE;
 
-    public Long getId() {
-        return id;
-    }
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
-    public List<BeautTimeSlot> getTimeSlots() {
-        return timeSlots;
-    }
-
-    public void setTimeSlots(List<BeautTimeSlot> timeSlots) {
-        this.timeSlots = timeSlots;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    private boolean active = true;
 }
+
+

@@ -1,33 +1,39 @@
 package com.example.BeautServices.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class BeautTimeSlot {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String slotName;
     private LocalTime startTime;
-    private LocalTime endTime; // Added to show the range
-    private LocalDate date; // Optional: For booking specific dates
+    private LocalTime endTime;
+    private boolean available = true;
 
-    @Enumerated(EnumType.STRING)
-    private SlotStatus status = SlotStatus.AVAILABLE;
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
-    private LocalDateTime reservedAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_id")
-    private BeautService beautService;
-
-    // Helper method to format time range as string
     public String getTimeRange() {
         return startTime + " - " + endTime;
     }
 }
+
+
