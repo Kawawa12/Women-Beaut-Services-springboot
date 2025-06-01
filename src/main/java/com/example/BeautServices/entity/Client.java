@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Customer implements UserDetails {
+public class Client implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,7 +36,7 @@ public class Customer implements UserDetails {
     private boolean active = true;
     private LocalDateTime lastActive;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PasswordResetToken> resetTokens = new ArrayList<>();
 
 
@@ -55,6 +55,12 @@ public class Customer implements UserDetails {
     public String getUsername() {
         return email;
     }
+
+    @Override
+    public boolean isEnabled() {
+        return active;
+    }
+
 
 
     public ProfileDto getCustomerDto(){

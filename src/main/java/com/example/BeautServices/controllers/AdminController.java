@@ -1,18 +1,12 @@
 package com.example.BeautServices.controllers;
 
 import com.example.BeautServices.apiresponse.ApiResponse;
-import com.example.BeautServices.apiresponse.ReceptionistResponseDto;
 import com.example.BeautServices.dto.ProfileDto;
 import com.example.BeautServices.dto.RegisterDto;
-import com.example.BeautServices.entity.Customer;
 import com.example.BeautServices.services.AdminService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 @AllArgsConstructor

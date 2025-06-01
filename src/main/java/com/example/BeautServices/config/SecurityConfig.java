@@ -6,9 +6,11 @@ import com.example.BeautServices.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,11 +38,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/bookings/create").permitAll()
                         // Allow static resources like images
                         .requestMatchers("/uploads/images**", "/css/**", "/js/**","/api/categories/**","/api/time-slots/**","/api/services/**").permitAll()
                         .requestMatchers("/api/auth/register", "/api/auth/login","/api/auth/online-users","/api/auth/me","/api/auth/logout").permitAll()
-                        .requestMatchers("/api/auth/password/**","/api/auth/customer/**").permitAll()
-                        .requestMatchers("/api/auth/receptionist/**").hasAnyRole(Role.ADMIN.name(), Role.RECEPTIONIST.name())
+                        .requestMatchers("/api/auth/password/**","/api/auth/client/**").permitAll()
+                        .requestMatchers("/api/bookings/create").hasRole(Role.CUSTOMER.name())
+                        .requestMatchers("/api/auth/receptionist/**","/api/bookings/all").hasAnyRole(Role.ADMIN.name(), Role.RECEPTIONIST.name())
                         .requestMatchers("/api/auth/admin/**").hasRole(Role.ADMIN.name())
                         .anyRequest().authenticated()
                 )

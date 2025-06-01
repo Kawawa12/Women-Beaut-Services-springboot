@@ -4,12 +4,12 @@ import com.example.BeautServices.apiresponse.ApiResponse;
 import com.example.BeautServices.apiresponse.LoginResponse;
 import com.example.BeautServices.dto.LoginDto;
 import com.example.BeautServices.dto.RegisterDto;
-import com.example.BeautServices.entity.Customer;
+import com.example.BeautServices.entity.Client;
 import com.example.BeautServices.entity.Role;
 import com.example.BeautServices.exceptions.NoActiveAccountException;
 import com.example.BeautServices.exceptions.UnexpectedException;
 import com.example.BeautServices.exceptions.UserAlreadyExistsException;
-import com.example.BeautServices.repository.CustomerRepository;
+import com.example.BeautServices.repository.ClientRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,17 +25,17 @@ import java.util.Optional;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final CustomerRepository customerRepository;
+    private final ClientRepository clientRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AuthServiceImpl(CustomerRepository customerRepository,
+    public AuthServiceImpl(ClientRepository clientRepository,
                            AuthenticationManager authenticationManager,
                            JwtService jwtService,
                            PasswordEncoder passwordEncoder) {
-        this.customerRepository = customerRepository;
+        this.clientRepository = clientRepository;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
@@ -43,33 +43,33 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public long countCurrentlyActiveUsers() {
-        return customerRepository.countByLastActiveAfter(LocalDateTime.now().minusMinutes(3));
+        return clientRepository.countByLastActiveAfter(LocalDateTime.now().minusMinutes(3));
     }
 
     @Override
     public ApiResponse<String> registerUser(RegisterDto dto) {
-        Optional<Customer> existingUser = customerRepository.findByEmail(dto.getEmail());
+        Optional<Client> existingUser = clientRepository.findByEmail(dto.getEmail());
 
         if (existingUser.isPresent()) {
             throw new UserAlreadyExistsException("User already exists with the same email!");
         }
 
-        Customer customer = new Customer();
-        customer.setFullName(dto.getFullName());
-        customer.setEmail(dto.getEmail());
-        customer.setAddress(dto.getAddress());
-        customer.setPhone(dto.getPhone());
-        customer.setPassword(passwordEncoder.encode(dto.getPassword()));
-        customer.setRole(Role.CUSTOMER);
-        customer.setActive(true);
+        Client client = new Client();
+        client.setFullName(dto.getFullName());
+        client.setEmail(dto.getEmail());
+        client.setAddress(dto.getAddress());
+        client.setPhone(dto.getPhone());
+        client.setPassword(passwordEncoder.encode(dto.getPassword()));
+        client.setRole(Role.CUSTOMER);
+        client.setActive(true);
 
-        customerRepository.save(customer);
+        clientRepository.save(client);
         return new ApiResponse<>(201, "Your account has been created successfully!", null);
     }
 
     @Override
     public ApiResponse<LoginResponse> loginUser(LoginDto dto, HttpServletResponse response) {
-        Customer user = customerRepository.findByEmail(dto.getEmail())
+        Client user = clientRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new NoActiveAccountException("No active account with these credentials!"));
 
         if (!user.isActive()) {
@@ -85,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         user.setLastActive(LocalDateTime.now());
-        customerRepository.save(user);
+        clientRepository.save(user);
 
         String token = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefToken(new HashMap<>(), user);

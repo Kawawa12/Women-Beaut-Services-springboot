@@ -2,10 +2,9 @@ package com.example.BeautServices.services;
 
 import com.example.BeautServices.apiresponse.ApiResponse;
 import com.example.BeautServices.dto.BeautServiceDto;
-import com.example.BeautServices.dto.ListTimeSlotDto;
 import com.example.BeautServices.dto.ServiceResponseDto;
 import com.example.BeautServices.entity.BeautService;
-import com.example.BeautServices.entity.BeautTimeSlot;
+import com.example.BeautServices.entity.TimeSlot;
 import com.example.BeautServices.entity.Category;
 import com.example.BeautServices.entity.ServiceStatus;
 import com.example.BeautServices.exceptions.ResourceNotFoundException;
@@ -56,10 +55,8 @@ public class BeautServiceImpl implements BeautServiceService {
         }
 
         // 🕒 Fetch all available time slots
-        List<BeautTimeSlot> allTimeSlots = timeSlotRepository.findAll();
+        List<TimeSlot> allTimeSlots = timeSlotRepository.findAll();
 
-        // 🔗 Assign all time slots to this new service
-        beautService.setTimeSlots(allTimeSlots);
 
         // ✅ Set metadata
         beautService.setStatus(ServiceStatus.AVAILABLE);
@@ -80,24 +77,16 @@ public class BeautServiceImpl implements BeautServiceService {
 
         List<ServiceResponseDto> responseList = serviceLists.stream().map(service -> {
             ServiceResponseDto dto = new ServiceResponseDto();
+            dto.setId(service.getId());
             dto.setServiceName(service.getName());
             dto.setCategoryName(service.getCategory().getName());
             dto.setDescription(service.getDescription());
             dto.setPrice(String.valueOf(service.getPrice()));
             dto.setActive(service.isActive());
+            dto.setStatus(service.getStatus().toString());
             dto.setImage(service.getImage());
             dto.setCreateDate(service.getCreatedAt());
             dto.setUpdateDate(service.getUpdatedAt());
-
-            // ✅ Convert time slots to ListTimeSlotDto and assign
-            List<ListTimeSlotDto> timeSlotDtos = service.getTimeSlots().stream().map(slot -> {
-                ListTimeSlotDto slotDto = new ListTimeSlotDto();
-                slotDto.setId(slot.getId());
-                slotDto.setSlotName(slot.getSlotName());
-                return slotDto;
-            }).toList();
-
-            dto.setTimeSlots(timeSlotDtos); // ✅ Assign the list to DTO
             return dto;
         }).toList();
 

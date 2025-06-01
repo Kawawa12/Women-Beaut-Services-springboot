@@ -14,7 +14,7 @@ import java.time.LocalTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BeautTimeSlot {
+public class TimeSlot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,7 +22,6 @@ public class BeautTimeSlot {
     private String slotName;
     private LocalTime startTime;
     private LocalTime endTime;
-    private boolean available = true;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -30,6 +29,9 @@ public class BeautTimeSlot {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    public TimeSlot(Long timeSlotId) {
+    }
 
     public String getTimeRange() {
         return startTime + " - " + endTime;

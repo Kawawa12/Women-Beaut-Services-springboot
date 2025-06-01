@@ -2,9 +2,9 @@ package com.example.BeautServices.services;
 
 import com.example.BeautServices.apiresponse.ApiResponse;
 import com.example.BeautServices.dto.ProfileDto;
-import com.example.BeautServices.entity.Customer;
+import com.example.BeautServices.entity.Client;
 import com.example.BeautServices.exceptions.UserNotFoundException;
-import com.example.BeautServices.repository.CustomerRepository;
+import com.example.BeautServices.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,15 +13,15 @@ import java.util.Optional;
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
-    private final CustomerRepository customerRepository;
+    private final ClientRepository clientRepository;
     @Autowired
-    public CustomerServiceImpl(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
+    public CustomerServiceImpl(ClientRepository clientRepository) {
+        this.clientRepository = clientRepository;
     }
 
     public ApiResponse<ProfileDto> getProfile(String email) {
 
-        Optional<Customer> customer = customerRepository.findByEmail(email);
+        Optional<Client> customer = clientRepository.findByEmail(email);
         if (customer.isPresent()) {
             return buildProfileResponse(customer.get());
         }
@@ -29,12 +29,12 @@ public class CustomerServiceImpl implements CustomerService {
         throw new UserNotFoundException("User is not found");
     }
 
-    private ApiResponse<ProfileDto> buildProfileResponse(Customer customer) {
+    private ApiResponse<ProfileDto> buildProfileResponse(Client client) {
         ProfileDto dto = new ProfileDto();
-        dto.setFullName(customer.getFullName());
-        dto.setEmail(customer.getEmail());
-        dto.setId(customer.getId());
-        dto.setPhone(customer.getPhone());
+        dto.setFullName(client.getFullName());
+        dto.setEmail(client.getEmail());
+        dto.setId(client.getId());
+        dto.setPhone(client.getPhone());
         return new ApiResponse<>(200, "success", dto);
     }
 }

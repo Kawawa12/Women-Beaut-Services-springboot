@@ -4,12 +4,12 @@ import com.example.BeautServices.apiresponse.ApiResponse;
 import com.example.BeautServices.apiresponse.ReceptionistResponseDto;
 import com.example.BeautServices.dto.ProfileDto;
 import com.example.BeautServices.dto.RegisterDto;
-import com.example.BeautServices.entity.Customer;
+import com.example.BeautServices.entity.Client;
 import com.example.BeautServices.entity.Role;
 import com.example.BeautServices.exceptions.UnexpectedException;
 import com.example.BeautServices.exceptions.UserAlreadyExistsException;
 import com.example.BeautServices.exceptions.UserNotFoundException;
-import com.example.BeautServices.repository.CustomerRepository;
+import com.example.BeautServices.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,12 +21,12 @@ import java.util.Optional;
 @Service
 public class AdminServiceImpl implements AdminService {
 
-    private final CustomerRepository customerRepository;
+    private final ClientRepository clientRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AdminServiceImpl(CustomerRepository customerRepository, PasswordEncoder passwordEncoder) {
-        this.customerRepository = customerRepository;
+    public AdminServiceImpl(ClientRepository clientRepository, PasswordEncoder passwordEncoder) {
+        this.clientRepository = clientRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -34,11 +34,11 @@ public class AdminServiceImpl implements AdminService {
     public ApiResponse<String> createReceptionist(RegisterDto dto) {
         try {
             // Check if receptionist exists with same email
-            if (customerRepository.existsByEmail(dto.getEmail())) {
+            if (clientRepository.existsByEmail(dto.getEmail())) {
                 throw new UserAlreadyExistsException("User already exists with the same email!");
             }
             // Create receptionist
-            Customer receptionist = new Customer();
+            Client receptionist = new Client();
             receptionist.setFullName(dto.getFullName());
             receptionist.setEmail(dto.getEmail());
             receptionist.setAddress(dto.getAddress());
@@ -46,7 +46,7 @@ public class AdminServiceImpl implements AdminService {
             receptionist.setActive(true);
             receptionist.setRole(Role.RECEPTIONIST);
             receptionist.setPassword(passwordEncoder.encode(dto.getPassword()));
-            customerRepository.save(receptionist);
+            clientRepository.save(receptionist);
 
             return new ApiResponse<>(201, "Receptionist created successfully.", null);
         }
@@ -66,11 +66,11 @@ public class AdminServiceImpl implements AdminService {
     public ApiResponse<String> deactivateAccount(Long id) {
 
         try{
-            Optional<Customer> optionalReceptionist = customerRepository.findById(id);
+            Optional<Client> optionalReceptionist = clientRepository.findById(id);
             if(optionalReceptionist.isPresent()){
-                Customer receptionist = optionalReceptionist.get();
+                Client receptionist = optionalReceptionist.get();
                 receptionist.setActive(false);
-                customerRepository.save(receptionist);
+                clientRepository.save(receptionist);
             }
             if(optionalReceptionist.isEmpty()){
                 throw new UserNotFoundException("User is not found!");
@@ -90,11 +90,11 @@ public class AdminServiceImpl implements AdminService {
     public ApiResponse<String> activateAccount(Long id) {
 
         try{
-            Optional<Customer> optionalReceptionist = customerRepository.findById(id);
+            Optional<Client> optionalReceptionist = clientRepository.findById(id);
             if(optionalReceptionist.isPresent()){
-                Customer receptionist = optionalReceptionist.get();
+                Client receptionist = optionalReceptionist.get();
                 receptionist.setActive(true);
-                customerRepository.save(receptionist);
+                clientRepository.save(receptionist);
             }
             if(optionalReceptionist.isEmpty()){
                 throw new UserNotFoundException("User is not found!");
@@ -108,7 +108,7 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
-    private ReceptionistResponseDto mapReceptionToDto(Customer receptionist) {
+    private ReceptionistResponseDto mapReceptionToDto(Client receptionist) {
         ReceptionistResponseDto responseDto = new ReceptionistResponseDto();
         responseDto.setFullName(receptionist.getFullName());
         responseDto.setEmail(receptionist.getEmail());
@@ -120,13 +120,13 @@ public class AdminServiceImpl implements AdminService {
     public ApiResponse<List<ProfileDto>> getCustomers() {
 
         try {
-            List<Customer> customers = customerRepository.findByRole(Role.CUSTOMER);
+            List<Client> clients = clientRepository.findByRole(Role.CUSTOMER);
 
-            if (customers.isEmpty()) {
+            if (clients.isEmpty()) {
                 throw new UserNotFoundException("No customer is found!");
             }
             List<ProfileDto> userList = new ArrayList<>();
-            for(Customer user:customers){
+            for(Client user: clients){
                 ProfileDto dto = new ProfileDto();
                 dto.setId(user.getId());
                 dto.setFullName(user.getFullName());
@@ -146,19 +146,19 @@ public class AdminServiceImpl implements AdminService {
     }
 
     public ApiResponse<ProfileDto> getReceptionist(Long id){
-        return new ApiResponse<>(200, "success", new Customer().getCustomerDto());
+        return new ApiResponse<>(200, "success", new Client().getCustomerDto());
     }
 
     public ApiResponse<List<ProfileDto>> getAllReceptionist(){
 
         try{
-            List<Customer> customers = customerRepository.findByRole(Role.RECEPTIONIST);
+            List<Client> clients = clientRepository.findByRole(Role.RECEPTIONIST);
 
-            if(customers.isEmpty()){
+            if(clients.isEmpty()){
                 throw new UserNotFoundException("No Receptionist is found");
             }
             List<ProfileDto> userList = new ArrayList<>();
-            for(Customer user:customers){
+            for(Client user: clients){
                 ProfileDto dto = new ProfileDto();
                 dto.setId(user.getId());
                 dto.setFullName(user.getFullName());

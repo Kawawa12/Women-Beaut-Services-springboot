@@ -3,7 +3,6 @@ package com.example.BeautServices.services;
 import com.example.BeautServices.apiresponse.ApiResponse;
 import com.example.BeautServices.dto.ProfileDto;
 import com.example.BeautServices.dto.RegisterDto;
-import com.example.BeautServices.entity.Customer;
 
 import java.util.List;
 

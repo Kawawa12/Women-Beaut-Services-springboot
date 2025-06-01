@@ -5,8 +5,8 @@ import com.example.BeautServices.apiresponse.LoginResponse;
 import com.example.BeautServices.dto.LoginDto;
 import com.example.BeautServices.dto.RegisterDto;
 import com.example.BeautServices.dto.UserInfoResponse;
-import com.example.BeautServices.entity.Customer;
-import com.example.BeautServices.repository.CustomerRepository;
+import com.example.BeautServices.entity.Client;
+import com.example.BeautServices.repository.ClientRepository;
 import com.example.BeautServices.services.AuthService;
 import com.example.BeautServices.services.JwtService;
 import jakarta.servlet.http.Cookie;
@@ -23,7 +23,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtService jwtService;
-    private final CustomerRepository customerRepository;
+    private final ClientRepository clientRepository;
 
     @GetMapping("/online-users")
     public ResponseEntity<Long> countOnlineUsers(){
@@ -68,7 +68,7 @@ public class AuthController {
                     .body(new ApiResponse<>(401, "Invalid token", null));
         }
 
-        Customer user = customerRepository.findByEmail(email).orElse(null);
+        Client user = clientRepository.findByEmail(email).orElse(null);
         if (user == null || !jwtService.isTokenValid(jwtToken, user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse<>(401, "Invalid or expired token", null));

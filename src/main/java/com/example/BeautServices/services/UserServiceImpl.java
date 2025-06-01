@@ -1,6 +1,6 @@
 package com.example.BeautServices.services;
 
-import com.example.BeautServices.repository.CustomerRepository;
+import com.example.BeautServices.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,24 +11,24 @@ import java.time.LocalDateTime;
 @Service
 public class UserServiceImpl implements UserService{
 
-    private final CustomerRepository customerRepository;
+    private final ClientRepository clientRepository;
     @Autowired
-    public UserServiceImpl(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
+    public UserServiceImpl(ClientRepository clientRepository) {
+        this.clientRepository = clientRepository;
     }
 
     @Override
     public UserDetailsService userDetailsService() {
-        return username ->  customerRepository.findByEmail(username).orElseThrow(
+        return username ->  clientRepository.findByEmail(username).orElseThrow(
                 ()-> new UsernameNotFoundException("User is not found")
         );
     }
 
     @Override
     public void updateLastActiveUser(String username) {
-        customerRepository.findByEmail(username).ifPresent(user-> {
+        clientRepository.findByEmail(username).ifPresent(user-> {
             user.setLastActive(LocalDateTime.now()); //update last user login
-            customerRepository.save(user);
+            clientRepository.save(user);
         });
     }
 }

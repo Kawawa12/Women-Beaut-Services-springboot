@@ -3,7 +3,7 @@ package com.example.BeautServices.services;
 import com.example.BeautServices.apiresponse.ApiResponse;
 import com.example.BeautServices.dto.BeautTimeSlotDto;
 import com.example.BeautServices.dto.BeautTimeSlotResponseDto;
-import com.example.BeautServices.entity.BeautTimeSlot;
+import com.example.BeautServices.entity.TimeSlot;
 import com.example.BeautServices.exceptions.ResourceNotFoundException;
 import com.example.BeautServices.repository.BeautTimeSlotRepository;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -35,11 +34,10 @@ public class BeautTimeSlotServiceImpl implements BeautTimeSlotService{
             throw new ResourceNotFoundException("A time slot with the same start and end time already exists.");
         }
 
-        BeautTimeSlot slot = new BeautTimeSlot();
+        TimeSlot slot = new TimeSlot();
         slot.setSlotName(dto.getStartTime() + " - " + dto.getEndTime()); // Optional
         slot.setStartTime(dto.getStartTime());
         slot.setEndTime(dto.getEndTime());
-        slot.setAvailable(true); // Default
         slot.setCreatedAt(LocalDateTime.now());
         slot.setUpdatedAt(LocalDateTime.now());
 
@@ -50,30 +48,26 @@ public class BeautTimeSlotServiceImpl implements BeautTimeSlotService{
 
     @Override
     public List<BeautTimeSlotResponseDto> getAllTimeSlots() {
-       List<BeautTimeSlot> timeSlots = beautTimeSlotRepository.findAll();
+       List<TimeSlot> timeSlots = beautTimeSlotRepository.findAll();
        if (timeSlots.isEmpty()){
            throw new ResourceNotFoundException("No time slot found!");
        }
        return  timeSlots.stream().map(this::mapTimeSlotToDto).toList();
     }
 
-    private BeautTimeSlotResponseDto mapTimeSlotToDto(BeautTimeSlot slot){
+    private BeautTimeSlotResponseDto mapTimeSlotToDto(TimeSlot slot){
         BeautTimeSlotResponseDto responseDto = new BeautTimeSlotResponseDto();
         responseDto.setId(slot.getId());
         responseDto.setStartTime(slot.getStartTime());
         responseDto.setEndTime(slot.getEndTime());
         responseDto.setCreatedDate(slot.getCreatedAt());
         responseDto.setUpdatedDate(slot.getUpdatedAt());
-        responseDto.setAvailable(slot.isAvailable());
         return responseDto;
     }
 
     public ApiResponse<?> toggleTimeSlotStatus(Long id) {
-        BeautTimeSlot slot = beautTimeSlotRepository.findById(id)
+        TimeSlot slot = beautTimeSlotRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Time slot not found with id: " + id));
-
-        // Toggle the availability
-        slot.setAvailable(!slot.isAvailable());
 
         // Save the updated slot
         beautTimeSlotRepository.save(slot);

@@ -2,12 +2,12 @@ package com.example.BeautServices.services;
 
 import com.example.BeautServices.apiresponse.ApiResponse;
 import com.example.BeautServices.dto.PasswordResetRequest;
-import com.example.BeautServices.entity.Customer;
+import com.example.BeautServices.entity.Client;
 import com.example.BeautServices.entity.PasswordResetToken;
 import com.example.BeautServices.exceptions.InvalidTokenException;
 import com.example.BeautServices.exceptions.NoActiveAccountException;
 import com.example.BeautServices.exceptions.UnexpectedException;
-import com.example.BeautServices.repository.CustomerRepository;
+import com.example.BeautServices.repository.ClientRepository;
 import com.example.BeautServices.repository.PasswordResetTokenRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +21,14 @@ import java.util.Random;
 @Service
 public class ResetPasswordServiceImpl implements ResetPasswordService{
 
-    private final CustomerRepository customerRepository;
+    private final ClientRepository clientRepository;
     private final PasswordEncoder passwordEncoder;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Autowired
-    public ResetPasswordServiceImpl(CustomerRepository customerRepository, PasswordEncoder passwordEncoder,
+    public ResetPasswordServiceImpl(ClientRepository clientRepository, PasswordEncoder passwordEncoder,
                                     PasswordResetTokenRepository passwordResetTokenRepository) {
-        this.customerRepository = customerRepository;
+        this.clientRepository = clientRepository;
         this.passwordEncoder = passwordEncoder;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
     }
@@ -39,13 +39,13 @@ public class ResetPasswordServiceImpl implements ResetPasswordService{
     public ApiResponse<String> resetPasswordToken(String email) {
         try {
             // 1. Find customer
-            Customer customer = customerRepository.findByEmail(email)
+            Client client = clientRepository.findByEmail(email)
                     .orElseThrow(() -> new NoActiveAccountException("No active account with email: " + email));
 
             // 2. Delete expired tokens
             passwordResetTokenRepository.deleteAll(
-                    passwordResetTokenRepository.findAllByCustomerAndExpiryDateBefore(
-                            customer,
+                    passwordResetTokenRepository.findAllByClientAndExpiryDateBefore(
+                            client,
                             LocalDateTime.now()
                     )
             );
@@ -79,7 +79,7 @@ public class ResetPasswordServiceImpl implements ResetPasswordService{
             // 5. Save new token
             PasswordResetToken newToken = new PasswordResetToken();
             newToken.setToken(otp);
-            newToken.setCustomer(customer);
+            newToken.setClient(client);
             newToken.setExpiryDate(LocalDateTime.now().plusMinutes(5)); // 5-minute expiry
             newToken.setUsed(false);
 
@@ -119,7 +119,7 @@ public class ResetPasswordServiceImpl implements ResetPasswordService{
     public ApiResponse<String> resetPassword(PasswordResetRequest request) {
         try {
             // 1. Verify customer exists
-            Customer customer = customerRepository.findByEmail(request.getEmail())
+            Client client = clientRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new NoActiveAccountException("No active account found with provided credential!"));
 
             // 2. Find valid, unused token
@@ -127,7 +127,7 @@ public class ResetPasswordServiceImpl implements ResetPasswordService{
                     .orElseThrow(() -> new InvalidTokenException("Invalid or expired OTP"));
 
             // 3. Verify token belongs to this customer
-            if (!token.getCustomer().getId().equals(customer.getId())) {
+            if (!token.getClient().getId().equals(client.getId())) {
                 throw new InvalidTokenException("OTP does not match with a provided credentials!");
             }
 
@@ -136,13 +136,13 @@ public class ResetPasswordServiceImpl implements ResetPasswordService{
             passwordResetTokenRepository.save(token);
 
             // 5. Update password
-            customer.setPassword(passwordEncoder.encode(request.getNewPassword()));
-            customerRepository.save(customer);
+            client.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            clientRepository.save(client);
 
             // 6. Cleanup any other tokens for this user
             passwordResetTokenRepository.deleteAll(
-                    passwordResetTokenRepository.findAllByCustomerAndExpiryDateBefore(
-                            customer,
+                    passwordResetTokenRepository.findAllByClientAndExpiryDateBefore(
+                            client,
                             LocalDateTime.now()
                     )
             );
