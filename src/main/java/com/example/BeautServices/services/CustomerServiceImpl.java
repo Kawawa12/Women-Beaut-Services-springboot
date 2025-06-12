@@ -37,4 +37,7 @@ public class CustomerServiceImpl implements CustomerService {
         dto.setPhone(client.getPhone());
         return new ApiResponse<>(200, "success", dto);
     }
+
+    //my bookings
+
 }

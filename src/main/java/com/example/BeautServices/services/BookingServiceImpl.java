@@ -3,6 +3,7 @@ package com.example.BeautServices.services;
 import com.example.BeautServices.apiresponse.ApiResponse;
 import com.example.BeautServices.dto.BookingDto;
 import com.example.BeautServices.dto.BookingResponseDto;
+import com.example.BeautServices.dto.BookingSummaryDto;
 import com.example.BeautServices.entity.*;
 import com.example.BeautServices.exceptions.ResourceNotFoundException;
 import com.example.BeautServices.exceptions.UserNotFoundException;
@@ -10,12 +11,13 @@ import com.example.BeautServices.repository.BeautServiceRepository;
 import com.example.BeautServices.repository.BeautTimeSlotRepository;
 import com.example.BeautServices.repository.BookingRepository;
 import com.example.BeautServices.repository.ClientRepository;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -131,6 +133,24 @@ public class BookingServiceImpl  implements BookingService{
         );
     }
 
+    // My bookings
+    @Transactional(readOnly = true)
+    public List<BookingSummaryDto> getMyBookings(String clientEmail) {
+        List<Booking> bookings = bookingRepository.findAllByClientEmail(clientEmail);
+
+        return bookings.stream().map(b -> new BookingSummaryDto(
+                b.getId(),
+                b.getService().getName(),
+                b.getTimeSlot().getTimeRange(),
+                b.getBookingDate(),
+                b.getPaymentMethod(),
+                b.getPaidAmount(),
+                b.getConfirmationPin(),
+                b.getPinExpiry(),
+                b.getPinExpiry().isBefore(LocalDateTime.now()),
+                b.getStatus()
+        )).toList();
+    }
 
 }
 

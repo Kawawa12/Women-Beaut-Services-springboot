@@ -42,9 +42,9 @@ public class SecurityConfig {
                         // Allow static resources like images
                         .requestMatchers("/uploads/images**", "/css/**", "/js/**","/api/categories/**","/api/time-slots/**","/api/services/**").permitAll()
                         .requestMatchers("/api/auth/register", "/api/auth/login","/api/auth/online-users","/api/auth/me","/api/auth/logout").permitAll()
-                        .requestMatchers("/api/auth/password/**","/api/auth/client/**").permitAll()
+                        .requestMatchers("/api/auth/password/**","/api/auth/client/**","/api/customer/**").permitAll()
                         .requestMatchers("/api/bookings/create").hasRole(Role.CUSTOMER.name())
-                        .requestMatchers("/api/auth/receptionist/**","/api/bookings/all").hasAnyRole(Role.ADMIN.name(), Role.RECEPTIONIST.name())
+                        .requestMatchers("/api/auth/receptionist/**","/api/auth/admin/all-customers","/api/bookings/all").hasAnyRole(Role.ADMIN.name(), Role.RECEPTIONIST.name())
                         .requestMatchers("/api/auth/admin/**").hasRole(Role.ADMIN.name())
                         .anyRequest().authenticated()
                 )
