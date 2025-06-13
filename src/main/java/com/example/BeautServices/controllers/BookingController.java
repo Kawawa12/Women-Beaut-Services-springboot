@@ -35,4 +35,21 @@ public class BookingController {
         log.info("Fetching all bookings");
         return ResponseEntity.ok(bookingService.getAllBookings());
     }
+
+    @PostMapping("/confirm")
+    public ResponseEntity<ApiResponse<?>> confirmBooking(
+            @RequestParam("id") Long bookingId,
+            @RequestParam("pin") String pin
+    ) {
+        ApiResponse<?> response = bookingService.confirmBookingAtReception(bookingId, pin);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<?>> getBooking(@PathVariable("id") Long bookingId) {
+        ApiResponse<?> response = bookingService.getBookingById(bookingId);
+        return ResponseEntity.ok(response);
+    }
+
+
 }

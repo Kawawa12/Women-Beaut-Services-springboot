@@ -38,6 +38,18 @@ public class CustomerServiceImpl implements CustomerService {
         return new ApiResponse<>(200, "success", dto);
     }
 
-    //my bookings
+    //update my profile
+    public ApiResponse<ProfileDto> updateProfile(String email, ProfileDto updatedDto) {
+        Client client = clientRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        client.setFullName(updatedDto.getFullName());
+        client.setEmail(updatedDto.getEmail());
+        client.setPhone(updatedDto.getPhone());
+
+        Client savedClient = clientRepository.save(client);
+        return buildProfileResponse(savedClient);
+    }
+
 
 }

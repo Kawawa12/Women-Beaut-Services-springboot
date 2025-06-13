@@ -121,6 +121,7 @@ public class BookingServiceImpl  implements BookingService{
 
     private BookingResponseDto mapToDto(Booking booking) {
         return new BookingResponseDto(
+                booking.getId(),
                 booking.getClient().getFullName(),
                 booking.getService().getName(),
                 booking.getTimeSlot().getTimeRange(), // or however you get time slot string
@@ -151,6 +152,45 @@ public class BookingServiceImpl  implements BookingService{
                 b.getStatus()
         )).toList();
     }
+
+
+    @Transactional
+    public ApiResponse<?> confirmBookingAtReception(Long bookingId, String pin) {
+        // 1. Find booking by ID
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found for ID: " + bookingId));
+
+        // 2. Check if the PIN matches
+        if (!booking.getConfirmationPin().equals(pin)) {
+            return new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), "Invalid PIN for this booking.", null);
+        }
+
+        // 3. Check if PIN is expired
+        if (booking.getPinExpiry().isBefore(LocalDateTime.now())) {
+            return new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), "PIN has expired.", null);
+        }
+
+        // 4. Check if already confirmed
+        if (booking.getStatus() == BookingStatus.CONFIRMED) {
+            return new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), "Booking is already confirmed.", null);
+        }
+
+        // 5. Confirm the booking
+        booking.setStatus(BookingStatus.CONFIRMED);
+        bookingRepository.save(booking);
+
+        return new ApiResponse<>(HttpStatus.OK.value(), "Booking confirmed successfully.", mapToDto(booking));
+    }
+
+    @Transactional(readOnly = true)
+    public ApiResponse<?> getBookingById(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found for ID: " + bookingId));
+
+        return new ApiResponse<>(HttpStatus.OK.value(), "Booking fetched successfully", mapToDto(booking));
+    }
+
+
 
 }
 

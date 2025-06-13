@@ -11,4 +11,6 @@ public interface BookingService {
     ApiResponse<?> createBooking(BookingDto bookingDto);
     ApiResponse<?> getAllBookings();
     List<BookingSummaryDto> getMyBookings(String clientEmail);
+    ApiResponse<?> confirmBookingAtReception(Long id, String pin);
+    ApiResponse<?> getBookingById(Long bookingId);
 }

@@ -7,9 +7,7 @@ import com.example.BeautServices.services.BookingService;
 import com.example.BeautServices.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
@@ -38,5 +36,13 @@ public class CustomerController {
     public ResponseEntity<List<BookingSummaryDto>> getMyBookings(Principal principal) {
         String email = principal.getName(); // ✅ Use the same Principal
         return ResponseEntity.ok(bookingService.getMyBookings(email));
+    }
+
+
+    @PutMapping("/profile")
+    public ResponseEntity<ApiResponse<ProfileDto>> updateProfile(@RequestBody ProfileDto profileDto, Principal principal) {
+        String email = principal.getName(); // Authenticated email
+        ApiResponse<ProfileDto> response = customerService.updateProfile(email, profileDto);
+        return ResponseEntity.ok(response);
     }
 }

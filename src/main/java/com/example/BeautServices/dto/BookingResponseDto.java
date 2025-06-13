@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingResponseDto {
+    private Long id;
     private String clientName;
     private String serviceName;
     private String timeSlot;         // e.g., "10:00 AM - 10:30 AM"
