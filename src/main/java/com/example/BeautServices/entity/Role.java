@@ -4,5 +4,9 @@ public enum Role {
 
     CUSTOMER,
     RECEPTIONIST,
-    ADMIN
+    ADMIN;
+
+    public String toString(){
+        return name().substring(0,1).toUpperCase() + name().substring(1).toLowerCase();
+    }
 }
