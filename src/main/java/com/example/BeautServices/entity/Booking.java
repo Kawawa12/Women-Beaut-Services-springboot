@@ -39,6 +39,10 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private BookingStatus status = BookingStatus.PENDING;
 
+    @ManyToOne
+    @JoinColumn(name = "booking_id") // FK column in Client table
+    private ServiceRoom serviceRoom;
+
 
 }
 

@@ -18,4 +18,7 @@ public class BookingResponseDto {
     private String status;           // PENDING, RESERVED, CONFIRMED
     private String confirmationPin;
     private boolean pinExpired;
+    private ServiceRoomDto serviceRoom;   // add this field!
+
+
 }
