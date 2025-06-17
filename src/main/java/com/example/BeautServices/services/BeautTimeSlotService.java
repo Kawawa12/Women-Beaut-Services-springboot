@@ -11,4 +11,6 @@ public interface BeautTimeSlotService {
     ApiResponse<?> createTimeSlot(BeautTimeSlotDto dto);
     List<BeautTimeSlotResponseDto> getAllTimeSlots();
     ApiResponse<?> toggleTimeSlotStatus(Long id);
+    ApiResponse<?> deleteTimeSlot(Long id);
+    ApiResponse<?> updateTimeSlot(Long id, BeautTimeSlotDto dto);
 }

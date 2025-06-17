@@ -53,7 +53,7 @@ public class CategoryController {
             @PathVariable Long id,
             @RequestParam("name") String name,
             @RequestParam(value = "description", required = false) String description,
-            @RequestParam("imageFile") MultipartFile imageFile) {
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
 
         try {
             CategoryDto categoryDto = CategoryDto.builder()
@@ -62,10 +62,9 @@ public class CategoryController {
                     .imageFile(imageFile)
                     .build();
 
-            ApiResponse<?> response = categoryService.updateCategory(categoryDto,id);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            ApiResponse<?> response = categoryService.updateCategory(categoryDto, id);
+            return ResponseEntity.status(HttpStatus.OK).body(response); // Use OK (200) for updates
         } catch (IllegalArgumentException e) {
-
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (IOException e) {
             log.error("Error processing category update", e);
@@ -85,9 +84,9 @@ public class CategoryController {
         return ResponseEntity.ok(category);
     }
 
-    @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<Void> deactivateCategory(@PathVariable Long id) {
-        categoryService.deactivateCategory(id);
+    @PatchMapping("/{id}/toggle")
+    public ResponseEntity<Void> toggleCategory(@PathVariable Long id) {
+        categoryService.toggleCategoryActiveStatus(id);
         return ResponseEntity.noContent().build();
     }
 }

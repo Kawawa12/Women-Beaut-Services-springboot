@@ -15,6 +15,7 @@ import com.example.BeautServices.repository.CategoryRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -70,9 +71,33 @@ public class BeautServiceImpl implements BeautServiceService {
         return new ApiResponse<>(HttpStatus.CREATED.value(), "Service created successfully.", beautService);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ApiResponse<List<ServiceResponseDto>> getAllBeautService() {
+        List<BeautService> serviceLists = beautServiceRepository.findByActiveTrue();
+
+        List<ServiceResponseDto> responseList = serviceLists.stream().map(service -> {
+            ServiceResponseDto dto = new ServiceResponseDto();
+            dto.setId(service.getId());
+            dto.setServiceName(service.getName());
+            dto.setCategoryName(service.getCategory().getName());
+            dto.setDescription(service.getDescription());
+            dto.setPrice(String.valueOf(service.getPrice()));
+            dto.setActive(service.isActive());
+            dto.setStatus(service.getStatus().toString());
+            dto.setImage(service.getImage());
+            dto.setCreateDate(service.getCreatedAt());
+            dto.setUpdateDate(service.getUpdatedAt());
+            return dto;
+        }).toList();
+
+        return new ApiResponse<>(HttpStatus.OK.value(), "Success", responseList);
+    }
+
 
     @Override
-    public ApiResponse<List<ServiceResponseDto>> getAllBeautService() {
+    @Transactional(readOnly = true)
+    public ApiResponse<List<ServiceResponseDto>> getBeautServices() {
         List<BeautService> serviceLists = beautServiceRepository.findAll();
 
         List<ServiceResponseDto> responseList = serviceLists.stream().map(service -> {
@@ -91,6 +116,51 @@ public class BeautServiceImpl implements BeautServiceService {
         }).toList();
 
         return new ApiResponse<>(HttpStatus.OK.value(), "Success", responseList);
+    }
+
+
+    @Override
+    public ApiResponse<BeautService> updateBeautService(Long id, BeautServiceDto dto) {
+        BeautService service = beautServiceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + id));
+
+        Optional<Category> category = categoryRepository.findById(dto.getCatId());
+        if (category.isEmpty()) {
+            throw new ResourceNotFoundException("Category is not found!");
+        }
+
+        service.setName(dto.getName());
+        service.setDescription(dto.getDescription());
+        service.setPrice(Double.parseDouble(dto.getPrice()));
+        service.setCategory(category.get());
+
+        try {
+            MultipartFile imageFile = dto.getImageFile();
+            if (imageFile != null && !imageFile.isEmpty()) {
+                service.setImage(imageFile.getBytes());
+            }
+        } catch (IOException e) {
+            throw new UnexpectedException("Image processing failed: " + e.getMessage());
+        }
+
+        service.setUpdatedAt(LocalDateTime.now());
+
+        beautServiceRepository.save(service);
+
+        return new ApiResponse<>(HttpStatus.OK.value(), "Service updated successfully.", service);
+    }
+
+    @Override
+    public ApiResponse<String> toggleActiveStatus(Long id) {
+        BeautService service = beautServiceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Service not found with id: " + id));
+
+        service.setActive(!service.isActive());
+        service.setUpdatedAt(LocalDateTime.now());
+        beautServiceRepository.save(service);
+
+        String statusMsg = service.isActive() ? "activated" : "deactivated";
+        return new ApiResponse<>(HttpStatus.OK.value(), "Service successfully " + statusMsg, null);
     }
 
 

@@ -34,7 +34,9 @@ public class CustomerServiceImpl implements CustomerService {
         dto.setFullName(client.getFullName());
         dto.setEmail(client.getEmail());
         dto.setId(client.getId());
+        dto.setAddress(client.getAddress());
         dto.setPhone(client.getPhone());
+        dto.setActive(client.isActive());
         return new ApiResponse<>(200, "success", dto);
     }
 
@@ -46,6 +48,7 @@ public class CustomerServiceImpl implements CustomerService {
         client.setFullName(updatedDto.getFullName());
         client.setEmail(updatedDto.getEmail());
         client.setPhone(updatedDto.getPhone());
+        client.setAddress(updatedDto.getAddress());
 
         Client savedClient = clientRepository.save(client);
         return buildProfileResponse(savedClient);

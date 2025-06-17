@@ -65,30 +65,37 @@ public class CategoryService {
     }
 
 
-    public ApiResponse<?> updateCategory(CategoryDto categoryDto, Long id)throws IOException {
+    public ApiResponse<?> updateCategory(CategoryDto categoryDto, Long id) throws IOException {
+        try {
+            Category category = categoryRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
 
-       try{
-           Category category = categoryRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Category is not found!"));
-           category.setName(categoryDto.getName());
-           category.setDescription(categoryDto.getDescription());
+            // Update name (required)
+            category.setName(categoryDto.getName());
 
-           MultipartFile imageFile = categoryDto.getImageFile();
-           if (imageFile.getSize() > maxImageSize) {
-               throw new IllegalArgumentException("Image size exceeds maximum allowed size");
-           }
-           byte[] imageBytes = imageFile.getBytes();
+            // Update description (optional)
+            category.setDescription(categoryDto.getDescription());
 
-           category.setImage(imageBytes);
-           category.setUpdatedAt(LocalDateTime.now());
+            // Update image only if a new file is provided
+            MultipartFile imageFile = categoryDto.getImageFile();
+            if (imageFile != null && !imageFile.isEmpty()) {
+                if (imageFile.getSize() > maxImageSize) {
+                    throw new IllegalArgumentException("Image size exceeds maximum allowed size");
+                }
+                byte[] imageBytes = imageFile.getBytes();
+                category.setImage(imageBytes);
+            }
+            // If imageFile is null or empty, retain the existing image (no action needed)
 
-           categoryRepository.save(category);
-       } catch (IOException e) {
-           log.error("Error processing image file", e);
-           throw e;
-       }
-       return new ApiResponse<>(HttpStatus.CREATED.value(), "Updated Successfully", null);
+            category.setUpdatedAt(LocalDateTime.now());
+            categoryRepository.save(category);
+
+            return new ApiResponse<>(HttpStatus.OK.value(), "Category updated successfully", null);
+        } catch (IOException e) {
+            log.error("Error processing image file for category id: {}", id, e);
+            throw e;
+        }
     }
-
     public List<Category> getAllActiveCategories() {
         return categoryRepository.findByActiveTrue();
     }
@@ -115,9 +122,10 @@ public class CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
     }
 
-    public void deactivateCategory(Long id) {
+    public void toggleCategoryActiveStatus(Long id) {
         Category category = getCategoryById(id);
-        category.setActive(false);
+        category.setActive(!category.isActive()); // ✅ Toggle active status
         categoryRepository.save(category);
     }
+
 }

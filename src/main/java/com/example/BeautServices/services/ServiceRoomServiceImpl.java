@@ -93,4 +93,6 @@ public class ServiceRoomServiceImpl implements ServiceRoomService {
         return new ApiResponse<>(HttpStatus.OK.value(),
                 "Booking assigned to room ID " + roomId + " successfully.", null);
     }
+
+
 }

@@ -47,6 +47,46 @@ public class BeautTimeSlotServiceImpl implements BeautTimeSlotService{
 
 
     @Override
+    public ApiResponse<?> updateTimeSlot(Long id, BeautTimeSlotDto dto) {
+        TimeSlot existingSlot = beautTimeSlotRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Time slot not found with id: " + id));
+
+        if (dto.getStartTime() == null || dto.getEndTime() == null) {
+            throw new IllegalArgumentException("Start time and end time are required.");
+        }
+
+        if (!dto.getEndTime().isAfter(dto.getStartTime())) {
+            throw new IllegalArgumentException("End time must be after start time.");
+        }
+
+        // Optional: Check for duplicate excluding itself
+        boolean exists = beautTimeSlotRepository.existsByStartTimeAndEndTime(dto.getStartTime(), dto.getEndTime());
+        if (exists && (!existingSlot.getStartTime().equals(dto.getStartTime()) || !existingSlot.getEndTime().equals(dto.getEndTime()))) {
+            throw new IllegalArgumentException("Another time slot with same start and end time exists.");
+        }
+
+        existingSlot.setStartTime(dto.getStartTime());
+        existingSlot.setEndTime(dto.getEndTime());
+        existingSlot.setSlotName(dto.getStartTime() + " - " + dto.getEndTime());
+        existingSlot.setUpdatedAt(LocalDateTime.now());
+
+        beautTimeSlotRepository.save(existingSlot);
+
+        return new ApiResponse<>(200, "Time slot updated successfully", existingSlot);
+    }
+
+    @Override
+    public ApiResponse<?> deleteTimeSlot(Long id) {
+        TimeSlot slot = beautTimeSlotRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Time slot not found with id: " + id));
+
+        beautTimeSlotRepository.delete(slot);
+
+        return new ApiResponse<>(200, "Time slot deleted successfully", null);
+    }
+
+
+    @Override
     public List<BeautTimeSlotResponseDto> getAllTimeSlots() {
        List<TimeSlot> timeSlots = beautTimeSlotRepository.findAll();
        if (timeSlots.isEmpty()){

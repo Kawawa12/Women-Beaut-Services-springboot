@@ -33,5 +33,24 @@ public class BeautTimeSlotController {
     public ResponseEntity<ApiResponse<?>> toggleTimeSlot(@PathVariable Long id){
         return ResponseEntity.ok(beautTimeSlotService.toggleTimeSlotStatus(id));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<?>> updateSlot(
+            @PathVariable Long id,
+            @RequestBody BeautTimeSlotDto dto
+    ) {
+        try {
+            return ResponseEntity.ok(beautTimeSlotService.updateTimeSlot(id, dto));
+        } catch (IllegalArgumentException e) {
+            throw new UnexpectedException("Error, " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<?>> deleteSlot(@PathVariable Long id) {
+        return ResponseEntity.ok(beautTimeSlotService.deleteTimeSlot(id));
+    }
+
+
 }
 

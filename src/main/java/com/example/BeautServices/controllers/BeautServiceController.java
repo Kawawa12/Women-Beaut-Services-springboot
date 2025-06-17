@@ -32,4 +32,30 @@ public class BeautServiceController {
         ApiResponse<List<ServiceResponseDto>> response = beautServiceService.getAllBeautService();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/admin/services")
+    public ResponseEntity<ApiResponse<List<ServiceResponseDto>>> getServices() {
+        ApiResponse<List<ServiceResponseDto>> response = beautServiceService.getBeautServices();
+        return ResponseEntity.ok(response);
+    }
+
+    // 🔁 Update service
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<?>> updateService(
+            @PathVariable Long id,
+            @ModelAttribute BeautServiceDto serviceDto
+    ) {
+        ApiResponse<?> response = beautServiceService.updateBeautService(id, serviceDto);
+        return ResponseEntity.ok(response);
+    }
+
+    // 🔀 Toggle active status
+    @PatchMapping("/{id}/toggle")
+    public ResponseEntity<ApiResponse<?>> toggleServiceStatus(
+            @PathVariable Long id
+    ) {
+        ApiResponse<?> response = beautServiceService.toggleActiveStatus(id);
+        return ResponseEntity.ok(response);
+    }
+
 }

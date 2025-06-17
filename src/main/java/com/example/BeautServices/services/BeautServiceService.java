@@ -11,4 +11,8 @@ public interface BeautServiceService {
 
     ApiResponse<BeautService> createBeautService(BeautServiceDto dto);
     ApiResponse<List<ServiceResponseDto>> getAllBeautService();
+    ApiResponse<String> toggleActiveStatus(Long id);
+    ApiResponse<BeautService> updateBeautService(Long id, BeautServiceDto dto);
+    ApiResponse<List<ServiceResponseDto>> getBeautServices();
+
 }

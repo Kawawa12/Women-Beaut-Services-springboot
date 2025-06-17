@@ -133,6 +133,7 @@ public class AdminServiceImpl implements AdminService {
                 dto.setEmail(user.getEmail());
                 dto.setAddress(user.getAddress());
                 dto.setPhone(user.getPhone());
+                dto.setActive(user.isActive());
                 userList.add(dto);
             }
 
